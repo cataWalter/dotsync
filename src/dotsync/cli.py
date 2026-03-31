@@ -16,6 +16,7 @@ from dotsync.analyzer import DotfileAnalyzer
 from dotsync.compatibility import CompatibilityChecker
 from dotsync.conflict_detector import ConflictDetector
 from dotsync.dependency_graph import DependencyGraphBuilder
+from dotsync.env_resolver import EnvVarResolver
 from dotsync.generator import MigrationGenerator
 from dotsync.git_integration import GitIntegration
 from dotsync.importer import DotfileImporter
@@ -969,6 +970,70 @@ def git(
     else:
         console.print(f"[red]Error:[/red] Unknown action: {action}")
         raise typer.Exit(1)
+
+
+@app.command()
+def env(
+    path: str = typer.Option(
+        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
+    ),
+    output: str = typer.Option(
+        None, "--output", "-o", help="Output file for the export script."
+    ),
+    shell: str = typer.Option(
+        "bash", "--shell", "-s", help="Shell type: bash, zsh."
+    ),
+) -> None:
+    """Resolve and export environment variables from dotfiles."""
+    path = Path(path).expanduser()
+
+    if not path.exists():
+        console.print(f"[red]Error:[/red] Path not found: {path}")
+        raise typer.Exit(1)
+
+    resolver = EnvVarResolver(path)
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Collecting environment variables...", total=None)
+        env_vars = resolver.collect_env_vars()
+
+    # Display summary
+    summary = resolver.get_summary()
+
+    table = Table(title="Environment Variables")
+    table.add_column("Variable", style="cyan")
+    table.add_column("Value", style="white")
+    table.add_column("Source", style="yellow")
+    table.add_column("Resolved", style="green")
+
+    for var_name, var_info in summary["vars"].items():
+        table.add_row(
+            var_name,
+            var_info["value"][:40] + "..." if len(var_info["value"]) > 40 else var_info["value"],
+            var_info["source"],
+            var_info["resolved"][:40] + "..." if len(var_info["resolved"]) > 40 else var_info["resolved"],
+        )
+
+    console.print(table)
+    console.print(f"\n[dim]Total: {summary['total_vars']} variables, {summary['path_vars']} path variables[/dim]")
+
+    if summary["circular_deps"] > 0:
+        console.print(f"[yellow]Warning: {summary['circular_deps']} circular dependency(ies) detected[/yellow]")
+
+    # Generate export script
+    script = resolver.generate_export_script(shell)
+
+    if output:
+        output_path = Path(output)
+        output_path.write_text(script)
+        output_path.chmod(0o755)
+        console.print(f"[green]Export script saved to:[/green] {output_path}")
+    else:
+        console.print("\n[dim]Use --output to save the export script.[/dim]")
 
 
 @app.command()
