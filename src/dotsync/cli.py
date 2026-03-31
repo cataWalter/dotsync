@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import typer
@@ -345,7 +344,12 @@ def migrate(
                 )
             )
             if typer.confirm("Do you want to continue?"):
-                console.print("[yellow]Migration execution not yet implemented. Use --output to save the script.[/yellow]")
+                console.print(
+                    "[yellow]Migration execution not yet implemented.[/yellow]"
+                )
+                console.print(
+                    "[dim]Use --output to save the script.[/dim]"
+                )
 
 
 @app.command()
@@ -532,7 +536,6 @@ def export_report(
     ),
 ) -> None:
     """Export analysis report in various formats (JSON, YAML, Markdown)."""
-    import json as json_module
 
     try:
         import yaml
@@ -582,7 +585,7 @@ def export_report(
             raise typer.Exit(1)
         content = yaml.dump(report.model_dump(), default_flow_style=False, sort_keys=False)
     elif format == "markdown":
-        checker = CompatibilityChecker()
+        CompatibilityChecker()
         generator = MigrationGenerator()
         content = generator.render_report(report, "linux-ubuntu")
     else:
@@ -999,8 +1002,8 @@ def env(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Collecting environment variables...", total=None)
-        env_vars = resolver.collect_env_vars()
+        progress.add_task("Collecting environment variables...", total=None)
+        resolver.collect_env_vars()
 
     # Display summary
     summary = resolver.get_summary()
@@ -1064,7 +1067,7 @@ def import_dotfiles(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task = progress.add_task("Importing dotfiles...", total=None)
+        progress.add_task("Importing dotfiles...", total=None)
 
         try:
             if manager:

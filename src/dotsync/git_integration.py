@@ -109,7 +109,7 @@ class GitIntegration:
         if not self.is_git_repo():
             return []
 
-        result = self._run_git("log", f"--oneline", f"-{limit}")
+        result = self._run_git("log", "--oneline", f"-{limit}")
         if result:
             return result.strip().split("\n")
         return []

@@ -2,13 +2,8 @@
 
 from __future__ import annotations
 
-import json
-import os
 import shutil
 from pathlib import Path
-
-from dotsync.analyzer import DotfileAnalyzer
-from dotsync.models import DotfileAnalysis
 
 
 class DotfileImporter:

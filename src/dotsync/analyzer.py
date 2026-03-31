@@ -14,7 +14,6 @@ except ImportError:
 
 from dotsync.models import Dependency, DotfileAnalysis
 
-
 # Common patterns for shell script analysis
 SHELL_PATTERNS = {
     "source_command": re.compile(r"^\s*(?:source|\.)\s+(.+)$", re.MULTILINE),
@@ -386,7 +385,7 @@ class DotfileAnalyzer:
             # Fallback: look for patterns
             pattern = re.compile(r"^\s*(\w+):\s*(.+)$", re.MULTILINE)
             for match in pattern.finditer(content):
-                key, value = match.group(1), match.group(2).strip()
+                _key, value = match.group(1), match.group(2).strip()
                 if any(cmd in value for cmd in ["vim", "nvim", "bash", "zsh"]):
                     analysis.dependencies.append(
                         Dependency(

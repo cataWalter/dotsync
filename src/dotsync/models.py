@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from pathlib import Path
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Severity levels for compatibility issues and conflicts."""
 
     INFO = "info"
@@ -18,7 +17,7 @@ class Severity(str, Enum):
     CRITICAL = "critical"
 
 
-class PlatformType(str, Enum):
+class PlatformType(StrEnum):
     """Supported platform types."""
 
     MACOS = "macos"

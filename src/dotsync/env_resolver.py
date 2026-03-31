@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 
 from dotsync.analyzer import DotfileAnalyzer
-from dotsync.models import DotfileAnalysis
 
 
 class EnvVarResolver:

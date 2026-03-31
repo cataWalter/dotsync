@@ -2,8 +2,8 @@
 
 import pytest
 
-from dotsync.compatibility import CompatibilityChecker, DEFAULT_PLATFORMS
-from dotsync.models import DotfileAnalysis, Dependency, Severity
+from dotsync.compatibility import CompatibilityChecker
+from dotsync.models import Dependency, DotfileAnalysis, Severity
 
 
 @pytest.fixture

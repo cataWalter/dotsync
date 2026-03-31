@@ -160,7 +160,6 @@ class DependencyGraphBuilder:
 
         # Add nodes with styling
         for node_id, node in self._nodes.items():
-            style = "fa:fa-file" if node.node_type in ("bash", "zsh", "sh", "vim", "tmux") else "fa:fa-cube"
             lines.append(f'    {node_id}["{node.name}"]:::{node.node_type}')
 
         # Add edges

@@ -7,7 +7,6 @@ from collections import defaultdict
 
 from dotsync.models import Conflict, DotfileAnalysis, Severity
 
-
 # Known conflict patterns
 CONFLICT_PATTERNS = {
     # Environment variable conflicts
@@ -265,7 +264,10 @@ class ConflictDetector:
                             description=f"Prompt variable '{var_name}' has conflicting definitions",
                             conflicting_items=[f"{path}: {value[:50]}..." for path, value in sources],
                             affected_variable=var_name,
-                            resolution=f"Use a single prompt configuration (consider starship for cross-shell compatibility)",
+                            resolution=(
+                                "Use a single prompt configuration "
+                                "(consider starship for cross-shell compatibility)"
+                            ),
                         )
                     )
 

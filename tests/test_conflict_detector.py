@@ -3,7 +3,7 @@
 import pytest
 
 from dotsync.conflict_detector import ConflictDetector
-from dotsync.models import DotfileAnalysis, Dependency, Severity
+from dotsync.models import Dependency, DotfileAnalysis
 
 
 @pytest.fixture

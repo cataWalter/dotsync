@@ -9,12 +9,10 @@ from typing import Any
 
 from dotsync.models import (
     CompatibilityIssue,
-    Dependency,
     DotfileAnalysis,
     PlatformDefinition,
     Severity,
 )
-
 
 # Default platform definitions
 DEFAULT_PLATFORMS: dict[str, dict[str, Any]] = {

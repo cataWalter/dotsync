@@ -5,23 +5,17 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from dotsync.compatibility import CompatibilityChecker
 from dotsync.conflict_detector import ConflictDetector
-from dotsync.dependency_graph import DependencyGraphBuilder
 from dotsync.models import (
     AnalysisReport,
-    CompatibilityIssue,
-    Conflict,
-    Dependency,
     DotfileAnalysis,
     MigrationPlan,
     MigrationStep,
     PlatformDefinition,
-    Severity,
 )
-
 
 # Default templates as fallback strings
 INSTALL_SCRIPT_TEMPLATE = """#!/usr/bin/env bash
@@ -322,7 +316,7 @@ class MigrationGenerator:
             raise ValueError(f"Unknown target platform: {target_platform}")
 
         target = checker.platforms[target_platform]
-        source = checker.platforms.get(source_platform) if source_platform else None
+        checker.platforms.get(source_platform) if source_platform else None
 
         # Detect conflicts
         conflicts = detector.detect_conflicts(analyses)

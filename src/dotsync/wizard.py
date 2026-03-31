@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from rich.console import Console
-from rich.prompt import Confirm, Prompt, IntPrompt
+from rich.prompt import Confirm, Prompt
 
 from dotsync.analyzer import DotfileAnalyzer
 from dotsync.compatibility import CompatibilityChecker
