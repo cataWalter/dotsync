@@ -21,6 +21,7 @@ from dotsync.generator import MigrationGenerator
 from dotsync.git_integration import GitIntegration
 from dotsync.importer import DotfileImporter
 from dotsync.models import AnalysisReport
+from dotsync.wizard import MigrationWizard
 
 app = typer.Typer(
     name="dotsync",
@@ -1085,6 +1086,12 @@ def import_dotfiles(
         console.print(table)
     else:
         console.print("[yellow]No files imported.[/yellow]")
+
+
+@app.command()
+def wizard() -> None:
+    """Interactive migration wizard."""
+    MigrationWizard().run()
 
 
 def main() -> None:
