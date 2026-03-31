@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -15,21 +16,46 @@ class GitIntegration:
     def is_git_repo(self) -> bool:
         """Check if the dotfiles directory is a git repository."""
         git_dir = self.dotfiles_path / ".git"
-        return git_dir.exists() or self._run_git("rev-parse", "--git-dir", check=False) is not None
+        if git_dir.exists():
+            return True
+        # Use explicit git-dir to prevent parent directory search
+        result = self._run_git("rev-parse", "--git-dir", check=False)
+        # Only return True if the git-dir is actually inside our directory
+        if result and ".git" in result:
+            return True
+        return False
 
     def init_repo(self, remote_url: str | None = None) -> bool:
         """Initialize a git repository for dotfiles."""
         if self.is_git_repo():
             return False
 
-        self._run_git("init")
-        self._run_git("add", ".")
-        self._run_git("commit", "-m", "Initial dotfiles commit")
+        # Use subprocess directly for init since .git doesn't exist yet
+        env = os.environ.copy()
+        env["GIT_CEILING_DIRECTORIES"] = str(self.dotfiles_path)
+        env["GIT_DISCOVERY_ACROSS_FILESYSTEMS"] = "0"
+        try:
+            subprocess.run(
+                ["git", "init"],
+                cwd=self.dotfiles_path,
+                capture_output=True,
+                text=True,
+                check=True,
+                env=env,
+            )
+            # Configure user identity for commits (required for git to work)
+            self._run_git("config", "user.email", "dotsync@example.com")
+            self._run_git("config", "user.name", "DotSync")
+            # Now .git exists, so we can use _run_git
+            self._run_git("add", ".")
+            self._run_git("commit", "-m", "Initial dotfiles commit")
 
-        if remote_url:
-            self._run_git("remote", "add", "origin", remote_url)
+            if remote_url:
+                self._run_git("remote", "add", "origin", remote_url)
 
-        return True
+            return True
+        except subprocess.CalledProcessError:
+            return False
 
     def add_dotfiles(self, files: list[str] | None = None) -> list[str]:
         """Add dotfiles to the git repository."""
@@ -124,8 +150,7 @@ class GitIntegration:
         """Run a git command in the dotfiles directory."""
         try:
             result = subprocess.run(
-                ["git", *args],
-                cwd=self.dotfiles_path,
+                ["git", "-C", str(self.dotfiles_path)] + list(args),
                 capture_output=True,
                 text=True,
                 check=check,
