@@ -17,6 +17,8 @@ from dotsync.compatibility import CompatibilityChecker
 from dotsync.conflict_detector import ConflictDetector
 from dotsync.dependency_graph import DependencyGraphBuilder
 from dotsync.generator import MigrationGenerator
+from dotsync.git_integration import GitIntegration
+from dotsync.importer import DotfileImporter
 from dotsync.models import AnalysisReport
 
 app = typer.Typer(
@@ -845,6 +847,179 @@ def diff(
             json.dumps(differences, indent=2)
         )
         console.print(f"[green]Diff report saved to:[/green] {output_path}")
+
+
+@app.command()
+def git(
+    path: str = typer.Option(
+        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
+    ),
+    action: str = typer.Argument(
+        "status", help="Git action: status, init, add, commit, push, pull, log, branch."
+    ),
+    remote: str = typer.Option(
+        None, "--remote", "-r", help="Remote URL for init/push."
+    ),
+    message: str = typer.Option(
+        None, "--message", "-m", help="Commit message."
+    ),
+    branch: str = typer.Option(
+        None, "--branch", "-b", help="Branch name."
+    ),
+) -> None:
+    """Manage dotfiles git repository."""
+    path = Path(path).expanduser()
+
+    if not path.exists():
+        console.print(f"[red]Error:[/red] Path not found: {path}")
+        raise typer.Exit(1)
+
+    git = GitIntegration(path)
+
+    if action == "status":
+        if not git.is_git_repo():
+            console.print("[yellow]Not a git repository.[/yellow]")
+            console.print("Run: dotsync git init [--remote URL]")
+            return
+
+        status = git.get_status()
+        if status:
+            table = Table(title="Git Status")
+            table.add_column("Status", style="cyan")
+            table.add_column("File", style="white")
+            for line in status:
+                if line.strip():
+                    parts = line.strip().split(" ", 1)
+                    if len(parts) == 2:
+                        table.add_row(parts[0], parts[1])
+            console.print(table)
+        else:
+            console.print("[green]Working tree clean.[/green]")
+
+    elif action == "init":
+        if git.is_git_repo():
+            console.print("[yellow]Already a git repository.[/yellow]")
+            return
+        git.init_repo(remote)
+        console.print("[green]Git repository initialized.[/green]")
+        if remote:
+            console.print(f"[green]Remote added: {remote}[/green]")
+
+    elif action == "add":
+        if not git.is_git_repo():
+            console.print("[red]Error:[/red] Not a git repository. Run init first.")
+            raise typer.Exit(1)
+        git.add_dotfiles()
+        console.print("[green]Dotfiles staged.[/green]")
+
+    elif action == "commit":
+        if not git.is_git_repo():
+            console.print("[red]Error:[/red] Not a git repository. Run init first.")
+            raise typer.Exit(1)
+        if not message:
+            console.print("[red]Error:[/red] Commit message required (-m)")
+            raise typer.Exit(1)
+        git.add_dotfiles()
+        if git.commit(message):
+            console.print(f"[green]Committed: {message}[/green]")
+        else:
+            console.print("[yellow]Nothing to commit.[/yellow]")
+
+    elif action == "push":
+        if not git.is_git_repo():
+            console.print("[red]Error:[/red] Not a git repository. Run init first.")
+            raise typer.Exit(1)
+        current_branch = git.get_current_branch() or branch or "main"
+        if git.push(branch=current_branch):
+            console.print("[green]Pushed to remote.[/green]")
+        else:
+            console.print("[red]Push failed.[/red]")
+
+    elif action == "pull":
+        if not git.is_git_repo():
+            console.print("[red]Error:[/red] Not a git repository. Run init first.")
+            raise typer.Exit(1)
+        current_branch = git.get_current_branch() or branch or "main"
+        if git.pull(branch=current_branch):
+            console.print("[green]Pulled from remote.[/green]")
+        else:
+            console.print("[red]Pull failed.[/red]")
+
+    elif action == "log":
+        if not git.is_git_repo():
+            console.print("[red]Error:[/red] Not a git repository. Run init first.")
+            raise typer.Exit(1)
+        log = git.get_log()
+        if log:
+            table = Table(title="Git Log")
+            table.add_column("Commit", style="cyan")
+            for entry in log:
+                table.add_row(entry)
+            console.print(table)
+        else:
+            console.print("[dim]No commits yet.[/dim]")
+
+    elif action == "branch":
+        if not git.is_git_repo():
+            console.print("[red]Error:[/red] Not a git repository. Run init first.")
+            raise typer.Exit(1)
+        current = git.get_current_branch()
+        console.print(f"[green]Current branch: {current}[/green]")
+
+    else:
+        console.print(f"[red]Error:[/red] Unknown action: {action}")
+        raise typer.Exit(1)
+
+
+@app.command()
+def import_dotfiles(
+    source: str = typer.Argument(
+        ..., help="Path to the source dotfiles manager directory."
+    ),
+    target: str = typer.Option(
+        "~/.dotfiles", "--target", "-t", help="Target directory for imported dotfiles."
+    ),
+    manager: str = typer.Option(
+        None, "--manager", "-m", help="Manager type: chezmoi, stow, dotbot (auto-detected if not specified)."
+    ),
+) -> None:
+    """Import dotfiles from other managers (chezmoi, stow, dotbot)."""
+    source_path = Path(source).expanduser()
+    target_path = Path(target).expanduser()
+
+    if not source_path.exists():
+        console.print(f"[red]Error:[/red] Source path not found: {source_path}")
+        raise typer.Exit(1)
+
+    importer = DotfileImporter(source_path, target_path)
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Importing dotfiles...", total=None)
+
+        try:
+            if manager:
+                imported = importer.import_from_any(manager)
+            else:
+                imported = importer.import_from_any()
+        except ValueError as e:
+            console.print(f"[red]Error:[/red] {e}")
+            raise typer.Exit(1)
+
+    if imported:
+        console.print(f"[green]Imported {len(imported)} files to {target_path}[/green]")
+        table = Table(title="Imported Files")
+        table.add_column("File", style="cyan")
+        for f in imported[:20]:  # Show first 20
+            table.add_row(Path(f).name)
+        if len(imported) > 20:
+            table.add_row(f"... and {len(imported) - 20} more")
+        console.print(table)
+    else:
+        console.print("[yellow]No files imported.[/yellow]")
 
 
 def main() -> None:
