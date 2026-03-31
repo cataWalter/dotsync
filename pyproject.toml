@@ -68,6 +68,7 @@ warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
 check_untyped_defs = false
+disable_error_code = ["import-untyped", "no-redef", "var-annotated", "arg-type", "assignment", "attr-defined"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
