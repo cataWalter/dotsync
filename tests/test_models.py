@@ -1,6 +1,5 @@
 """Tests for the models module."""
 
-
 from dotsync.models import (
     CompatibilityIssue,
     Conflict,

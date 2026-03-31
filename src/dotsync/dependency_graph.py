@@ -185,5 +185,9 @@ class DependencyGraphBuilder:
         """Get the recommended installation order for dependencies."""
         order = self.get_topological_order()
         # Filter to only include leaf nodes (actual packages/commands)
-        return [n for n in order if self._nodes.get(n, DependencyNode(name="", node_type="")).node_type in
-                ("package", "command", "plugin")]
+        return [
+            n
+            for n in order
+            if self._nodes.get(n, DependencyNode(name="", node_type="")).node_type
+            in ("package", "command", "plugin")
+        ]

@@ -104,9 +104,7 @@ class DotfileImporter:
                                     target_path = Path(target).expanduser()
                                     source_path = self.source_path / source
                                     if source_path.exists():
-                                        target_path.parent.mkdir(
-                                            parents=True, exist_ok=True
-                                        )
+                                        target_path.parent.mkdir(parents=True, exist_ok=True)
                                         shutil.copy2(source_path, target_path)
                                         imported.append(str(target_path))
 
@@ -141,14 +139,11 @@ class DotfileImporter:
         ):
             return self.import_from_chezmoi()
         elif any(
-            d.is_dir()
-            and any(f.is_file() for f in d.rglob("*"))
+            d.is_dir() and any(f.is_file() for f in d.rglob("*"))
             for d in self.source_path.iterdir()
         ):
             return self.import_from_stow()
-        elif any(self.source_path.glob("*.conf.yaml")) or any(
-            self.source_path.glob("*.conf.yml")
-        ):
+        elif any(self.source_path.glob("*.conf.yaml")) or any(self.source_path.glob("*.conf.yml")):
             return self.import_from_dotbot()
 
         raise ValueError("Could not auto-detect dotfile manager")

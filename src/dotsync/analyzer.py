@@ -87,10 +87,20 @@ class DotfileAnalyzer:
 
         # Common dotfile patterns
         patterns = [
-            ".zshrc", ".bashrc", ".bash_profile", ".profile",
-            ".gitconfig", ".vimrc", ".nvimrc", ".tmux.conf",
-            ".xinitrc", ".xprofile", ".inputrc", ".wgetrc",
-            ".curlrc", ".editorconfig",
+            ".zshrc",
+            ".bashrc",
+            ".bash_profile",
+            ".profile",
+            ".gitconfig",
+            ".vimrc",
+            ".nvimrc",
+            ".tmux.conf",
+            ".xinitrc",
+            ".xprofile",
+            ".inputrc",
+            ".wgetrc",
+            ".curlrc",
+            ".editorconfig",
         ]
 
         # Check for files directly in the directory
@@ -225,8 +235,13 @@ class DotfileAnalyzer:
 
             # Extract package manager commands
             for pattern_name, pattern in SHELL_PATTERNS.items():
-                if pattern_name in ("source_command", "export_command", "alias_command",
-                                    "function_definition", "command_check"):
+                if pattern_name in (
+                    "source_command",
+                    "export_command",
+                    "alias_command",
+                    "function_definition",
+                    "command_check",
+                ):
                     continue
                 match = pattern.match(line)
                 if match:
@@ -312,7 +327,9 @@ class DotfileAnalyzer:
             except Exception as e:
                 analysis.parse_errors.append(f"TOML parse error: {e}")
 
-    def _extract_toml_dependencies(self, data: dict[str, Any], analysis: DotfileAnalysis, prefix: str = "") -> None:
+    def _extract_toml_dependencies(
+        self, data: dict[str, Any], analysis: DotfileAnalysis, prefix: str = ""
+    ) -> None:
         """Recursively extract dependencies from TOML data."""
         for key, value in data.items():
             full_key = f"{prefix}.{key}" if prefix else key
@@ -350,7 +367,9 @@ class DotfileAnalyzer:
         except json.JSONDecodeError as e:
             analysis.parse_errors.append(f"JSON parse error: {e}")
 
-    def _extract_json_dependencies(self, data: Any, analysis: DotfileAnalysis, prefix: str = "") -> None:
+    def _extract_json_dependencies(
+        self, data: Any, analysis: DotfileAnalysis, prefix: str = ""
+    ) -> None:
         """Recursively extract dependencies from JSON data."""
         if isinstance(data, dict):
             for key, value in data.items():
@@ -403,7 +422,9 @@ class DotfileAnalyzer:
         except yaml.YAMLError as e:
             analysis.parse_errors.append(f"YAML parse error: {e}")
 
-    def _extract_yaml_dependencies(self, data: dict[str, Any], analysis: DotfileAnalysis, prefix: str = "") -> None:
+    def _extract_yaml_dependencies(
+        self, data: dict[str, Any], analysis: DotfileAnalysis, prefix: str = ""
+    ) -> None:
         """Recursively extract dependencies from YAML data."""
         for key, value in data.items():
             full_key = f"{prefix}.{key}" if prefix else key

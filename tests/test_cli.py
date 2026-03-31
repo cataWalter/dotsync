@@ -50,9 +50,7 @@ class TestCLI:
 
     def test_graph(self, fixtures_dir: Path, tmp_path: Path) -> None:
         output = tmp_path / "deps.mermaid"
-        result = runner.invoke(
-            app, ["graph", "--path", str(fixtures_dir), "--output", str(output)]
-        )
+        result = runner.invoke(app, ["graph", "--path", str(fixtures_dir), "--output", str(output)])
         assert result.exit_code == 0
         assert "Dependency graph saved" in result.stdout
         assert output.exists()
@@ -69,7 +67,9 @@ class TestCLI:
         assert "Validation Results" in result.stdout or "passed validation" in result.stdout
 
     def test_export_json(self, fixtures_dir: Path) -> None:
-        result = runner.invoke(app, ["export-report", "--path", str(fixtures_dir), "--format", "json"])
+        result = runner.invoke(
+            app, ["export-report", "--path", str(fixtures_dir), "--format", "json"]
+        )
         assert result.exit_code == 0
         assert '"source_path"' in result.stdout
 

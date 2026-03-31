@@ -403,7 +403,7 @@ class MigrationGenerator:
                     order=order,
                     action="modify",
                     description=f"Set default shell to {target.shell_default}",
-                    command=f'chsh -s {target.shell_default}',
+                    command=f"chsh -s {target.shell_default}",
                     condition=f'[ "$SHELL" != "{target.shell_default}" ]',
                 )
             )
@@ -415,9 +415,8 @@ class MigrationGenerator:
                 order=order,
                 action="verify",
                 description="Verify all tools are installed",
-                command=" && ".join(
-                    [f"command -v {pkg}" for pkg in list(all_packages)[:5]]
-                ) or "true",
+                command=" && ".join([f"command -v {pkg}" for pkg in list(all_packages)[:5]])
+                or "true",
             )
         )
 

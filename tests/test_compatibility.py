@@ -45,9 +45,7 @@ class TestCompatibilityChecker:
     def test_check_compatibility_macos_to_ubuntu(
         self, checker: CompatibilityChecker, sample_analysis: DotfileAnalysis
     ) -> None:
-        issues = checker.check_compatibility(
-            [sample_analysis], "linux-ubuntu", "macos"
-        )
+        issues = checker.check_compatibility([sample_analysis], "linux-ubuntu", "macos")
         # Should detect brew as incompatible
         brew_issues = [i for i in issues if "brew" in i.message.lower()]
         assert len(brew_issues) > 0
@@ -79,9 +77,7 @@ class TestCompatibilityChecker:
     def test_incompatible_tools_detection(
         self, checker: CompatibilityChecker, sample_analysis: DotfileAnalysis
     ) -> None:
-        issues = checker.check_compatibility(
-            [sample_analysis], "linux-ubuntu", "macos"
-        )
+        issues = checker.check_compatibility([sample_analysis], "linux-ubuntu", "macos")
         # Should have at least one error for incompatible tools
         errors = [i for i in issues if i.severity == Severity.ERROR]
         assert len(errors) > 0

@@ -97,9 +97,15 @@ class TestMigrationGenerator:
         from dotsync.models import MigrationStep
 
         steps = [
-            MigrationStep(order=1, action="install", description="Install pkg", command="brew install pkg"),
-            MigrationStep(order=2, action="install", description="Install pkg2", command="brew install pkg2"),
-            MigrationStep(order=3, action="copy", description="Copy file", command="cp file1 file2"),
+            MigrationStep(
+                order=1, action="install", description="Install pkg", command="brew install pkg"
+            ),
+            MigrationStep(
+                order=2, action="install", description="Install pkg2", command="brew install pkg2"
+            ),
+            MigrationStep(
+                order=3, action="copy", description="Copy file", command="cp file1 file2"
+            ),
         ]
         time = generator._estimate_time(steps)
         assert isinstance(time, str)

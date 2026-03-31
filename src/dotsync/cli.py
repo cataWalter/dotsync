@@ -63,15 +63,11 @@ def callback(
 
 @app.command()
 def analyze(
-    path: str = typer.Argument(
-        "~/.dotfiles", help="Path to the dotfiles directory to analyze."
-    ),
+    path: str = typer.Argument("~/.dotfiles", help="Path to the dotfiles directory to analyze."),
     output: str = typer.Option(
         None, "--output", "-o", help="Output file for the analysis report (JSON)."
     ),
-    verbose: bool = typer.Option(
-        False, "--verbose", help="Show detailed analysis output."
-    ),
+    verbose: bool = typer.Option(False, "--verbose", help="Show detailed analysis output."),
 ) -> None:
     """Analyze dotfiles and extract dependencies."""
     path = Path(path).expanduser()
@@ -121,12 +117,8 @@ def analyze(
 
 @app.command()
 def check(
-    target: str = typer.Argument(
-        ..., help="Target platform to check compatibility against."
-    ),
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
+    target: str = typer.Argument(..., help="Target platform to check compatibility against."),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
     source: str = typer.Option(
         None, "--source", "-s", help="Source platform (auto-detected if not specified)."
     ),
@@ -184,20 +176,14 @@ def check(
 
     if output:
         output_path = Path(output)
-        output_path.write_text(
-            json.dumps([i.model_dump() for i in issues], indent=2)
-        )
+        output_path.write_text(json.dumps([i.model_dump() for i in issues], indent=2))
         console.print(f"[green]Report saved to:[/green] {output_path}")
 
 
 @app.command()
 def generate(
-    target: str = typer.Argument(
-        ..., help="Target platform to generate migration script for."
-    ),
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
+    target: str = typer.Argument(..., help="Target platform to generate migration script for."),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
     source: str = typer.Option(
         None, "--source", "-s", help="Source platform (auto-detected if not specified)."
     ),
@@ -259,7 +245,9 @@ def generate(
     )
 
     if plan.issues:
-        console.print(f"\n[yellow]Warning: {len(plan.issues)} compatibility issue(s) detected.[/yellow]")
+        console.print(
+            f"\n[yellow]Warning: {len(plan.issues)} compatibility issue(s) detected.[/yellow]"
+        )
 
     if plan.conflicts:
         console.print(f"\n[yellow]Warning: {len(plan.conflicts)} conflict(s) detected.[/yellow]")
@@ -267,12 +255,8 @@ def generate(
 
 @app.command()
 def migrate(
-    target: str = typer.Argument(
-        ..., help="Target platform to migrate to."
-    ),
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
+    target: str = typer.Argument(..., help="Target platform to migrate to."),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
     source: str = typer.Option(
         None, "--source", "-s", help="Source platform (auto-detected if not specified)."
     ),
@@ -344,12 +328,8 @@ def migrate(
                 )
             )
             if typer.confirm("Do you want to continue?"):
-                console.print(
-                    "[yellow]Migration execution not yet implemented.[/yellow]"
-                )
-                console.print(
-                    "[dim]Use --output to save the script.[/dim]"
-                )
+                console.print("[yellow]Migration execution not yet implemented.[/yellow]")
+                console.print("[dim]Use --output to save the script.[/dim]")
 
 
 @app.command()
@@ -379,9 +359,7 @@ def rollback(
 
 @app.command()
 def graph(
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
     output: str = typer.Option(
         "deps.mermaid", "--output", "-o", help="Output file for the Mermaid diagram."
     ),
@@ -420,12 +398,8 @@ def graph(
 
 @app.command()
 def conflicts(
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
-    output: str = typer.Option(
-        None, "--output", "-o", help="Output file for the conflict report."
-    ),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
+    output: str = typer.Option(None, "--output", "-o", help="Output file for the conflict report."),
 ) -> None:
     """Detect configuration conflicts."""
     path = Path(path).expanduser()
@@ -476,9 +450,7 @@ def conflicts(
 
     if output:
         output_path = Path(output)
-        output_path.write_text(
-            json.dumps([c.model_dump() for c in conflicts], indent=2)
-        )
+        output_path.write_text(json.dumps([c.model_dump() for c in conflicts], indent=2))
         console.print(f"[green]Conflict report saved to:[/green] {output_path}")
 
 
@@ -525,12 +497,8 @@ def _display_analysis_summary(report: AnalysisReport, verbose: bool = False) -> 
 
 @app.command()
 def export_report(
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
-    output: str = typer.Option(
-        None, "--output", "-o", help="Output file for the report."
-    ),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
+    output: str = typer.Option(None, "--output", "-o", help="Output file for the report."),
     format: str = typer.Option(
         "json", "--format", "-f", help="Output format: json, yaml, or markdown."
     ),
@@ -602,12 +570,8 @@ def export_report(
 
 @app.command()
 def validate(
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
-    strict: bool = typer.Option(
-        False, "--strict", help="Fail on warnings as well as errors."
-    ),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
+    strict: bool = typer.Option(False, "--strict", help="Fail on warnings as well as errors."),
 ) -> None:
     """Validate dotfiles for common issues and best practices."""
     path = Path(path).expanduser()
@@ -633,19 +597,23 @@ def validate(
     for analysis in analyses:
         # Check for empty files
         if not analysis.raw_content.strip():
-            issues.append({
-                "file": analysis.path,
-                "severity": "warning",
-                "message": "File is empty",
-            })
+            issues.append(
+                {
+                    "file": analysis.path,
+                    "severity": "warning",
+                    "message": "File is empty",
+                }
+            )
 
         # Check for syntax errors
         for error in analysis.parse_errors:
-            issues.append({
-                "file": analysis.path,
-                "severity": "error",
-                "message": f"Parse error: {error}",
-            })
+            issues.append(
+                {
+                    "file": analysis.path,
+                    "severity": "error",
+                    "message": f"Parse error: {error}",
+                }
+            )
 
         # Check for hardcoded paths
         hardcoded_paths = [
@@ -657,11 +625,13 @@ def validate(
         for line_num, line in enumerate(analysis.raw_content.split("\n"), 1):
             for hp in hardcoded_paths:
                 if hp in line and not line.strip().startswith("#"):
-                    issues.append({
-                        "file": analysis.path,
-                        "severity": "warning",
-                        "message": f"Line {line_num}: Hardcoded path '{hp}' detected",
-                    })
+                    issues.append(
+                        {
+                            "file": analysis.path,
+                            "severity": "warning",
+                            "message": f"Line {line_num}: Hardcoded path '{hp}' detected",
+                        }
+                    )
 
         # Check for deprecated commands
         deprecated = {
@@ -670,20 +640,26 @@ def validate(
         }
         for deprecated_cmd, suggestion in deprecated.items():
             if deprecated_cmd in analysis.raw_content:
-                issues.append({
-                    "file": analysis.path,
-                    "severity": "info",
-                    "message": f"Suggestion: {suggestion}",
-                })
+                issues.append(
+                    {
+                        "file": analysis.path,
+                        "severity": "info",
+                        "message": f"Suggestion: {suggestion}",
+                    }
+                )
 
         # Check for missing shebang in shell scripts
         if analysis.file_type in ("bash", "zsh", "sh"):
-            if not analysis.raw_content.startswith("#!") and not analysis.raw_content.startswith("#"):
-                issues.append({
-                    "file": analysis.path,
-                    "severity": "info",
-                    "message": "Consider adding a shebang line for shell scripts",
-                })
+            if not analysis.raw_content.startswith("#!") and not analysis.raw_content.startswith(
+                "#"
+            ):
+                issues.append(
+                    {
+                        "file": analysis.path,
+                        "severity": "info",
+                        "message": "Consider adding a shebang line for shell scripts",
+                    }
+                )
 
     # Display results
     table = Table(title="Validation Results")
@@ -725,9 +701,7 @@ def validate(
 def diff(
     path_a: str = typer.Argument(..., help="Path to the first dotfiles directory."),
     path_b: str = typer.Argument(..., help="Path to the second dotfiles directory."),
-    output: str = typer.Option(
-        None, "--output", "-o", help="Output file for the diff report."
-    ),
+    output: str = typer.Option(None, "--output", "-o", help="Output file for the diff report."),
 ) -> None:
     """Compare two dotfiles directories and show differences."""
     path_a = Path(path_a).expanduser()
@@ -813,10 +787,12 @@ def diff(
             )
 
             if diffs:
-                differences.append({
-                    "file": filename,
-                    "differences": diffs,
-                })
+                differences.append(
+                    {
+                        "file": filename,
+                        "differences": diffs,
+                    }
+                )
         elif in_a:
             table.add_row(
                 filename,
@@ -824,10 +800,12 @@ def diff(
                 "[dim]Not present[/dim]",
                 "Only in A",
             )
-            differences.append({
-                "file": filename,
-                "differences": ["Only present in first directory"],
-            })
+            differences.append(
+                {
+                    "file": filename,
+                    "differences": ["Only present in first directory"],
+                }
+            )
         else:
             table.add_row(
                 filename,
@@ -835,10 +813,12 @@ def diff(
                 f"{len(map_b[filename].dependencies)} deps",
                 "Only in B",
             )
-            differences.append({
-                "file": filename,
-                "differences": ["Only present in second directory"],
-            })
+            differences.append(
+                {
+                    "file": filename,
+                    "differences": ["Only present in second directory"],
+                }
+            )
 
     console.print(table)
 
@@ -848,29 +828,19 @@ def diff(
 
     if output:
         output_path = Path(output)
-        output_path.write_text(
-            json.dumps(differences, indent=2)
-        )
+        output_path.write_text(json.dumps(differences, indent=2))
         console.print(f"[green]Diff report saved to:[/green] {output_path}")
 
 
 @app.command()
 def git(
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
     action: str = typer.Argument(
         "status", help="Git action: status, init, add, commit, push, pull, log, branch."
     ),
-    remote: str = typer.Option(
-        None, "--remote", "-r", help="Remote URL for init/push."
-    ),
-    message: str = typer.Option(
-        None, "--message", "-m", help="Commit message."
-    ),
-    branch: str = typer.Option(
-        None, "--branch", "-b", help="Branch name."
-    ),
+    remote: str = typer.Option(None, "--remote", "-r", help="Remote URL for init/push."),
+    message: str = typer.Option(None, "--message", "-m", help="Commit message."),
+    branch: str = typer.Option(None, "--branch", "-b", help="Branch name."),
 ) -> None:
     """Manage dotfiles git repository."""
     path = Path(path).expanduser()
@@ -978,15 +948,9 @@ def git(
 
 @app.command()
 def env(
-    path: str = typer.Option(
-        "~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."
-    ),
-    output: str = typer.Option(
-        None, "--output", "-o", help="Output file for the export script."
-    ),
-    shell: str = typer.Option(
-        "bash", "--shell", "-s", help="Shell type: bash, zsh."
-    ),
+    path: str = typer.Option("~/.dotfiles", "--path", "-p", help="Path to the dotfiles directory."),
+    output: str = typer.Option(None, "--output", "-o", help="Output file for the export script."),
+    shell: str = typer.Option("bash", "--shell", "-s", help="Shell type: bash, zsh."),
 ) -> None:
     """Resolve and export environment variables from dotfiles."""
     path = Path(path).expanduser()
@@ -1019,14 +983,22 @@ def env(
             var_name,
             var_info["value"][:40] + "..." if len(var_info["value"]) > 40 else var_info["value"],
             var_info["source"],
-            var_info["resolved"][:40] + "..." if len(var_info["resolved"]) > 40 else var_info["resolved"],
+            (
+                var_info["resolved"][:40] + "..."
+                if len(var_info["resolved"]) > 40
+                else var_info["resolved"]
+            ),
         )
 
     console.print(table)
-    console.print(f"\n[dim]Total: {summary['total_vars']} variables, {summary['path_vars']} path variables[/dim]")
+    console.print(
+        f"\n[dim]Total: {summary['total_vars']} variables, {summary['path_vars']} path variables[/dim]"
+    )
 
     if summary["circular_deps"] > 0:
-        console.print(f"[yellow]Warning: {summary['circular_deps']} circular dependency(ies) detected[/yellow]")
+        console.print(
+            f"[yellow]Warning: {summary['circular_deps']} circular dependency(ies) detected[/yellow]"
+        )
 
     # Generate export script
     script = resolver.generate_export_script(shell)
@@ -1042,14 +1014,15 @@ def env(
 
 @app.command()
 def import_dotfiles(
-    source: str = typer.Argument(
-        ..., help="Path to the source dotfiles manager directory."
-    ),
+    source: str = typer.Argument(..., help="Path to the source dotfiles manager directory."),
     target: str = typer.Option(
         "~/.dotfiles", "--target", "-t", help="Target directory for imported dotfiles."
     ),
     manager: str = typer.Option(
-        None, "--manager", "-m", help="Manager type: chezmoi, stow, dotbot (auto-detected if not specified)."
+        None,
+        "--manager",
+        "-m",
+        help="Manager type: chezmoi, stow, dotbot (auto-detected if not specified).",
     ),
 ) -> None:
     """Import dotfiles from other managers (chezmoi, stow, dotbot)."""

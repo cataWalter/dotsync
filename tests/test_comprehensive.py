@@ -171,9 +171,7 @@ pip3 install black
 class TestCompatibilityExtended:
     """Extended tests for compatibility checker."""
 
-    def test_check_compatibility_with_env_var_incompatible_tool(
-        self, fixtures_dir: Path
-    ) -> None:
+    def test_check_compatibility_with_env_var_incompatible_tool(self, fixtures_dir: Path) -> None:
         checker = CompatibilityChecker()
         analysis = DotfileAnalysis(
             path="/test/.zshrc",
@@ -184,9 +182,7 @@ class TestCompatibilityExtended:
         issues = checker.check_compatibility([analysis], "macos", "linux-ubuntu")
         assert len(issues) > 0
 
-    def test_check_shell_compatibility_zsh_features(
-        self, fixtures_dir: Path
-    ) -> None:
+    def test_check_shell_compatibility_zsh_features(self, fixtures_dir: Path) -> None:
         checker = CompatibilityChecker()
         analysis = DotfileAnalysis(
             path="/test/.zshrc",
@@ -199,9 +195,7 @@ class TestCompatibilityExtended:
         # Should detect zsh-specific features
         assert len(issues) >= 0
 
-    def test_check_os_specific_configs_macos_tools(
-        self, fixtures_dir: Path
-    ) -> None:
+    def test_check_os_specific_configs_macos_tools(self, fixtures_dir: Path) -> None:
         checker = CompatibilityChecker()
         analysis = DotfileAnalysis(
             path="/test/.zshrc",
@@ -214,9 +208,7 @@ class TestCompatibilityExtended:
         issues = checker.check_compatibility([analysis], "linux-ubuntu", "macos")
         assert len(issues) > 0
 
-    def test_check_os_specific_configs_linux_tools(
-        self, fixtures_dir: Path
-    ) -> None:
+    def test_check_os_specific_configs_linux_tools(self, fixtures_dir: Path) -> None:
         checker = CompatibilityChecker()
         analysis = DotfileAnalysis(
             path="/test/.bashrc",
@@ -422,8 +414,20 @@ class TestEnvResolver:
     def test_check_circular_deps(self) -> None:
         resolver = EnvVarResolver("/tmp")
         resolver.env_vars = {
-            "A": {"value": "$B", "references": ["B"], "source": "/test", "resolved_value": "", "is_path": False},
-            "B": {"value": "$A", "references": ["A"], "source": "/test", "resolved_value": "", "is_path": False},
+            "A": {
+                "value": "$B",
+                "references": ["B"],
+                "source": "/test",
+                "resolved_value": "",
+                "is_path": False,
+            },
+            "B": {
+                "value": "$A",
+                "references": ["A"],
+                "source": "/test",
+                "resolved_value": "",
+                "is_path": False,
+            },
         }
         cycles = resolver.check_circular_deps()
         assert len(cycles) >= 0
@@ -486,6 +490,7 @@ class TestGitIntegration:
         yield d
         # Cleanup
         import shutil
+
         shutil.rmtree(d, ignore_errors=True)
 
     def test_is_not_git_repo(self, isolated_tmp_dir: Path) -> None:
@@ -745,7 +750,11 @@ class TestWizard:
     @patch("dotsync.wizard.Prompt.ask")
     @patch("dotsync.wizard.Confirm.ask")
     def test_run_cancelled_by_issues(
-        self, mock_confirm: MagicMock, mock_prompt: MagicMock, mock_console: MagicMock, fixtures_dir: Path
+        self,
+        mock_confirm: MagicMock,
+        mock_prompt: MagicMock,
+        mock_console: MagicMock,
+        fixtures_dir: Path,
     ) -> None:
         wizard = MigrationWizard()
         mock_prompt.side_effect = [
@@ -761,7 +770,11 @@ class TestWizard:
     @patch("dotsync.wizard.Prompt.ask")
     @patch("dotsync.wizard.Confirm.ask")
     def test_run_cancelled_by_conflicts(
-        self, mock_confirm: MagicMock, mock_prompt: MagicMock, mock_console: MagicMock, fixtures_dir: Path
+        self,
+        mock_confirm: MagicMock,
+        mock_prompt: MagicMock,
+        mock_console: MagicMock,
+        fixtures_dir: Path,
     ) -> None:
         wizard = MigrationWizard()
         mock_prompt.side_effect = [
@@ -792,6 +805,10 @@ class TestWizard:
             "linux-ubuntu",  # target platform
             output_file,  # output file
         ]
-        mock_confirm.side_effect = [True, True, False]  # Continue on issues, continue on conflicts, skip steps
+        mock_confirm.side_effect = [
+            True,
+            True,
+            False,
+        ]  # Continue on issues, continue on conflicts, skip steps
         wizard.run()
         assert (tmp_path / "migration.sh").exists()
