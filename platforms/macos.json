@@ -1,0 +1,39 @@
+{
+  "name": "macos",
+  "package_manager": "brew",
+  "shell_default": "/bin/zsh",
+  "config_paths": {
+    "zshrc": "~/.zshrc",
+    "bashrc": "~/.bashrc",
+    "bash_profile": "~/.bash_profile",
+    "gitconfig": "~/.gitconfig",
+    "tmux": "~/.tmux.conf",
+    "vimrc": "~/.vimrc"
+  },
+  "package_map": {
+    "starship": "starship",
+    "fzf": "fzf",
+    "ripgrep": "ripgrep",
+    "fd": "fd",
+    "bat": "bat",
+    "eza": "eza",
+    "zoxide": "zoxide",
+    "tmux": "tmux",
+    "neovim": "neovim",
+    "git": "git",
+    "zsh": "zsh",
+    "bash": "bash",
+    "jq": "jq",
+    "yq": "yq",
+    "httpie": "httpie",
+    "curl": "curl",
+    "wget": "wget",
+    "tree": "tree",
+    "htop": "htop",
+    "lazygit": "lazygit"
+  },
+  "incompatible_tools": ["apt", "apt-get", "pacman", "dnf", "yum", "systemctl", "xclip", "xsel", "xdg-open"],
+  "supported_shells": ["bash", "zsh", "fish"],
+  "os_family": "darwin",
+  "arch_support": ["x86_64", "arm64"]
+}

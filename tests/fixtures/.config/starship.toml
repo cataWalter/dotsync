@@ -1,0 +1,48 @@
+# ~/.config/starship.toml - Sample starship configuration
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$fill\
+$python\
+$nodejs\
+$rust\
+$golang\
+$line_break\
+$character"""
+
+[directory]
+style = "bold cyan"
+truncation_length = 3
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "bold purple"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold red"
+
+[fill]
+symbol = " "
+
+[python]
+format = '[$symbol$version]($style) '
+style = "bold yellow"
+
+[nodejs]
+format = '[$symbol$version]($style) '
+style = "bold green"
+
+[rust]
+format = '[$symbol$version]($style) '
+style = "bold red"
+
+[golang]
+format = '[$symbol$version]($style) '
+style = "bold blue"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"

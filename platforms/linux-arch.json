@@ -1,0 +1,39 @@
+{
+  "name": "linux-arch",
+  "package_manager": "pacman",
+  "shell_default": "/bin/bash",
+  "config_paths": {
+    "zshrc": "~/.zshrc",
+    "bashrc": "~/.bashrc",
+    "bash_profile": "~/.bash_profile",
+    "gitconfig": "~/.gitconfig",
+    "tmux": "~/.tmux.conf",
+    "vimrc": "~/.vimrc"
+  },
+  "package_map": {
+    "starship": "starship",
+    "fzf": "fzf",
+    "ripgrep": "ripgrep",
+    "fd": "fd",
+    "bat": "bat",
+    "eza": "eza",
+    "zoxide": "zoxide",
+    "tmux": "tmux",
+    "neovim": "neovim",
+    "git": "git",
+    "zsh": "zsh",
+    "bash": "bash",
+    "jq": "jq",
+    "yq": "yq",
+    "httpie": "httpie",
+    "curl": "curl",
+    "wget": "wget",
+    "tree": "tree",
+    "htop": "htop",
+    "lazygit": "lazygit"
+  },
+  "incompatible_tools": ["brew", "mas", "apt", "apt-get", "dnf", "yum"],
+  "supported_shells": ["bash", "zsh", "fish"],
+  "os_family": "linux",
+  "arch_support": ["x86_64"]
+}

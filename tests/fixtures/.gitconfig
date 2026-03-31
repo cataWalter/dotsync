@@ -1,0 +1,34 @@
+# ~/.gitconfig - Sample git configuration
+
+[user]
+    name = Test User
+    email = test@example.com
+
+[core]
+    editor = nvim
+    autocrlf = input
+    excludesfile = ~/.gitignore_global
+
+[init]
+    defaultBranch = main
+
+[push]
+    autoSetupRemote = true
+
+[pull]
+    rebase = true
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    lg = log --oneline --graph --decorate
+
+[merge]
+    tool = nvim
+
+[diff]
+    tool = nvim
+
+[include]
+    path = ~/.gitconfig_local

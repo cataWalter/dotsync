@@ -1,0 +1,88 @@
+# DotSync Compatibility Report
+
+Generated: {{ generated_at }}
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Source | {{ source_platform }} |
+| Target | {{ target_platform }} |
+| Files Analyzed | {{ files_analyzed }} |
+| Total Dependencies | {{ total_dependencies }} |
+| Compatibility Issues | {{ total_issues }} |
+| Conflicts Detected | {{ conflicts | length }} |
+
+## Analyzed Files
+
+{% for file in analyzed_files %}
+### {{ file.path }}
+
+- **Type**: {{ file.file_type }}
+- **Dependencies**: {{ file.dependencies | length }}
+- **Environment Variables**: {{ file.environment_variables | length }}
+- **Aliases**: {{ file.aliases | length }}
+- **Functions**: {{ file.functions | length }}
+{% if file.parse_errors %}
+- **Parse Errors**: {{ file.parse_errors | join(", ") }}
+{% endif %}
+
+#### Dependencies
+
+| Name | Type | Required |
+|------|------|----------|
+{% for dep in file.dependencies %}
+| {{ dep.name }} | {{ dep.dependency_type }} | {{ dep.required }} |
+{% endfor %}
+
+{% endfor %}
+
+## Compatibility Issues
+
+{% for platform, issues in platform_compatibility.items() %}
+### {{ platform }}
+
+{% if issues %}
+| Severity | Message | Suggestion |
+|----------|---------|------------|
+{% for issue in issues %}
+| {{ issue.severity.value.upper() }} | {{ issue.message }} | {{ issue.suggestion }} |
+{% endfor %}
+{% else %}
+No issues detected.
+{% endif %}
+
+{% endfor %}
+
+## Conflicts
+
+{% if conflicts %}
+{% for conflict in conflicts %}
+### {{ conflict.description }}
+
+- **Severity**: {{ conflict.severity.value.upper() }}
+- **Affected**: {{ conflict.affected_variable }}
+- **Items**: {{ conflict.conflicting_items | join(", ") }}
+- **Resolution**: {{ conflict.resolution }}
+
+{% endfor %}
+{% else %}
+No conflicts detected.
+{% endif %}
+
+## Dependency Graph
+
+```mermaid
+{{ dependency_graph }}
+```
+
+## Recommendations
+
+{% if total_issues > 0 %}
+1. Review and resolve the {{ total_issues }} compatibility issue(s) before migrating.
+{% endif %}
+{% if conflicts | length > 0 %}
+1. Address the {{ conflicts | length }} conflict(s) to ensure a smooth migration.
+{% endif %}
+1. Always run the migration script with `DRY_RUN=true` first.
+1. Keep the backup directory until you've verified the migration was successful.

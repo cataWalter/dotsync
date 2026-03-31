@@ -1,0 +1,240 @@
+#!/usr/bin/env bash
+# =============================================================================
+# DotSync Migration Script
+# =============================================================================
+# Generated: {{ generated_at }}
+# Source Platform: {{ source_platform }}
+# Target Platform: {{ target_platform }}
+# =============================================================================
+#
+# WARNING: Review this script carefully before running!
+# It is recommended to run with --dry-run first.
+#
+# Usage:
+#   ./migration.sh           # Apply migration
+#   DRY_RUN=true ./migration.sh  # Dry-run mode
+#
+# =============================================================================
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration
+DRY_RUN="${DRY_RUN:-false}"
+BACKUP_DIR="$HOME/.dotsync_backup_{{ timestamp }}"
+LOG_FILE="$HOME/.dotsync_migration_{{ timestamp }}.log"
+
+# =============================================================================
+# Logging Functions
+# =============================================================================
+
+log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1" | tee -a "$LOG_FILE"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1" | tee -a "$LOG_FILE"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1" | tee -a "$LOG_FILE"
+}
+
+log_step() {
+    echo -e "\n${BLUE}==> $1${NC}" | tee -a "$LOG_FILE"
+}
+
+run_cmd() {
+    local cmd="$1"
+    local description="${2:-}"
+    
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${YELLOW}[DRY-RUN]${NC} Would execute: $cmd"
+        if [ -n "$description" ]; then
+            echo -e "${YELLOW}[DRY-RUN]${NC} Description: $description"
+        fi
+    else
+        log_info "Executing: $cmd"
+        if eval "$cmd" >> "$LOG_FILE" 2>&1; then
+            log_info "Success: $cmd"
+        else
+            log_error "Failed: $cmd"
+            return 1
+        fi
+    fi
+}
+
+# =============================================================================
+# Backup Functions
+# =============================================================================
+
+backup_configs() {
+    log_step "Creating backup in $BACKUP_DIR"
+    mkdir -p "$BACKUP_DIR"
+
+{% for file in backup_files %}
+    if [ -f "{{ file }}" ] || [ -d "{{ file }}" ]; then
+        cp -r "{{ file }}" "$BACKUP_DIR/" 2>/dev/null || true
+        log_info "Backed up: {{ file }}"
+    fi
+{% endfor %}
+
+    log_info "Backup complete"
+}
+
+# =============================================================================
+# Prerequisites Check
+# =============================================================================
+
+check_prerequisites() {
+    log_step "Checking prerequisites"
+
+{% for step in steps %}
+{% if step.action == "install" and "package_manager" in step.description|lower %}
+    # Check package manager
+    if ! command -v {{ target_package_manager }} &>/dev/null; then
+        log_warn "{{ target_package_manager }} not found. Attempting to install..."
+{% if step.condition %}
+        if {{ step.condition }}; then
+            run_cmd "{{ step.command }}" "Install {{ target_package_manager }}"
+        fi
+{% else %}
+        run_cmd "{{ step.command }}" "Install {{ target_package_manager }}"
+{% endif %}
+    else
+        log_info "{{ target_package_manager }} is already installed"
+    fi
+{% endif %}
+{% endfor %}
+}
+
+# =============================================================================
+# Install Dependencies
+# =============================================================================
+
+install_dependencies() {
+    log_step "Installing dependencies"
+
+{% for step in steps %}
+{% if step.action == "install" and "package_manager" not in step.description|lower %}
+    # {{ step.description }}
+{% if step.condition %}
+    if {{ step.condition }}; then
+        run_cmd "{{ step.command }}" "{{ step.description }}"
+    else
+        log_info "Skipping: {{ step.description }} (condition not met)"
+    fi
+{% else %}
+    run_cmd "{{ step.command }}" "{{ step.description }}"
+{% endif %}
+
+{% endif %}
+{% endfor %}
+}
+
+# =============================================================================
+# Configure Dotfiles
+# =============================================================================
+
+configure_dotfiles() {
+    log_step "Configuring dotfiles"
+
+{% for step in steps %}
+{% if step.action in ["copy", "modify", "create", "symlink"] %}
+    # {{ step.description }}
+{% if step.condition %}
+    if {{ step.condition }}; then
+        run_cmd "{{ step.command }}" "{{ step.description }}"
+    else
+        log_info "Skipping: {{ step.description }} (condition not met)"
+    fi
+{% else %}
+    run_cmd "{{ step.command }}" "{{ step.description }}"
+{% endif %}
+
+{% endif %}
+{% endfor %}
+}
+
+# =============================================================================
+# Post-Installation Verification
+# =============================================================================
+
+post_install() {
+    log_step "Running post-installation verification"
+
+{% for step in steps %}
+{% if step.action == "verify" %}
+    # {{ step.description }}
+    if {{ step.command }}; then
+        log_info "Verified: {{ step.description }}"
+    else
+        log_warn "Verification failed: {{ step.description }}"
+    fi
+
+{% endif %}
+{% endfor %}
+}
+
+# =============================================================================
+# Cleanup
+# =============================================================================
+
+cleanup() {
+    log_step "Migration complete!"
+    echo ""
+    echo "Backup location: $BACKUP_DIR"
+    echo "Log file: $LOG_FILE"
+    echo ""
+{% if issues %}
+    log_warn "There were {{ issues | length }} compatibility issue(s)."
+    log_warn "Review the issues below and address them manually:"
+{% for issue in issues %}
+    log_warn "  - {{ issue.message }}"
+{% endfor %}
+{% endif %}
+}
+
+# =============================================================================
+# Main Execution
+# =============================================================================
+
+main() {
+    echo ""
+    echo -e "${GREEN}============================================${NC}"
+    echo -e "${GREEN}  DotSync Migration: {{ source_platform }} -> {{ target_platform }}${NC}"
+    echo -e "${GREEN}============================================${NC}"
+    echo ""
+
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${YELLOW}*** DRY RUN MODE - No changes will be made ***${NC}"
+        echo ""
+    fi
+
+    # Initialize log file
+    echo "DotSync Migration Log" > "$LOG_FILE"
+    echo "Started: $(date)" >> "$LOG_FILE"
+    echo "Source: {{ source_platform }}" >> "$LOG_FILE"
+    echo "Target: {{ target_platform }}" >> "$LOG_FILE"
+    echo "---" >> "$LOG_FILE"
+
+    # Execute migration steps
+    check_prerequisites
+    backup_configs
+    install_dependencies
+    configure_dotfiles
+    post_install
+    cleanup
+
+    echo ""
+    echo -e "${GREEN}Migration completed successfully!${NC}"
+}
+
+# Run main function
+main "$@"
